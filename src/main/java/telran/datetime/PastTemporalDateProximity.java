@@ -1,49 +1,38 @@
 package telran.datetime;
 
-import telran.utils.Arrays;
+import java.util.Arrays;
 
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
+
 import static java.time.temporal.ChronoUnit.*;
 
 public class PastTemporalDateProximity implements TemporalAdjuster
 {
-    Temporal[] temporal = {};
+    Temporal[] temporals;
 
-    public Temporal[] getTemporal()
+    public PastTemporalDateProximity(Temporal[] temporals)
     {
-        return this.temporal;
-    }
-
-    public void addTemporal(Temporal temp)
-    {
-        this.temporal = Arrays.insert(this.temporal, temp);
-    }
-
-    public void removeTemporal(int index)
-    {
-        this.temporal = Arrays.remove(this.temporal, index);
-    }
-
-    public void getNearestBefore(Temporal current)
-    {
-        int delta = Integer.MAX_VALUE;
-        for (Temporal tmp : this.temporal) {
-            System.out.println(tmp.until(current, DAYS));
-        }
+        this.temporals = temporals;
     }
 
     @Override
-    public Temporal adjustInto(Temporal temporal) {
-        long delta = Integer.MAX_VALUE;
+    public Temporal adjustInto(Temporal zerropoint_temporal) {
+        Arrays.sort(this.temporals, new ComparatorTemporalDate());
+
         Temporal result = null;
-        for (Temporal tmp : this.temporal) {
-            long tmp_delta = tmp.until(temporal, DAYS);
-            if (tmp_delta > 0 && tmp_delta <= delta) {
-                delta = tmp_delta;
-                result = tmp;
+        if (this.temporals.length > 0) {
+            long delta = zerropoint_temporal.until(this.temporals[this.temporals.length - 1], DAYS);
+            if (delta >= 0) {
+                int res = Arrays.binarySearch(this.temporals, zerropoint_temporal, new ComparatorTemporalDate());
+                if (res < 0) {
+                    result = zerropoint_temporal.with(temporal -> this.temporals[-res - 2]);
+                } else {
+                    result = zerropoint_temporal.with(temporal -> this.temporals[res]);
+                }
             }
         }
+
         return result;
     }
 }

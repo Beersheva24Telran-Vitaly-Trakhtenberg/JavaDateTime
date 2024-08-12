@@ -49,18 +49,31 @@ public class DateTimeTest
                 LocalDate.of(1971, 8, 16),
                 LocalDate.of(2022, 11, 30),
         };
-        PastTemporalDateProximity ptdp = new PastTemporalDateProximity();
-        for (Temporal tmp : temporals) {
-            ptdp.addTemporal(tmp);
-            System.out.printf("Added %s, result is %s \n", tmp, Arrays.toString(ptdp.getTemporal()));
-        }
+        Temporal[] one_item_temporals = {
+                LocalDate.of(2024, 4, 16),
+        };
+        Temporal[] empty_temporals = {};
+
+        PastTemporalDateProximity ptdp = new PastTemporalDateProximity(temporals);
 
         Temporal res = ptdp.adjustInto(LocalDate.of(2024, 8, 16));
-        System.out.println(res.toString());
-        assertEquals("2024-04-16", res.toString());
+        assertNull(res);
 
         res = ptdp.adjustInto(LocalDate.of(2024, 3, 16));
-        System.out.println(res.toString());
         assertEquals("2022-11-30", res.toString());
+
+        res = ptdp.adjustInto(LocalDate.of(2024, 4, 16));
+        assertEquals("2024-04-16", res.toString());
+
+        res = ptdp.adjustInto(LocalDate.of(2022, 11, 30));
+        assertEquals("2022-11-30", res.toString());
+
+        ptdp = new PastTemporalDateProximity(one_item_temporals);
+        res = ptdp.adjustInto(LocalDate.of(2024, 5, 16));
+        assertNull(res);
+
+        ptdp = new PastTemporalDateProximity(empty_temporals);
+        res = ptdp.adjustInto(LocalDate.of(2024, 5, 16));
+        assertNull(res);
     }
 }
